@@ -4,16 +4,6 @@
 
 Использование:
     python3 train_model.py --features features.csv
-
-Что делает скрипт:
-    1. Загружает таблицу признаков на клиента (features.csv)
-    2. Делит клиентов на train/test
-    3. Обучает две модели для сравнения: логистическую регрессию (baseline,
-       интерпретируемая — важно для банковского/регуляторного контекста)
-       и градиентный бустинг (XGBoost) — более сильную, но менее прозрачную
-    4. Считает метрики качества: accuracy, precision, recall, F1, ROC-AUC
-    5. Сохраняет ROC-кривую и таблицу важности признаков как картинки —
-       их можно прямо вставлять в презентацию
 """
 
 import argparse
@@ -105,7 +95,7 @@ def main():
     plt.savefig("feature_importance.png", dpi=150)
     plt.close()
 
-    # --- Градиентный бустинг (если доступен) ---
+    # --- Градиентный бустинг  ---
     if HAS_XGB:
         xgb = XGBClassifier(
             n_estimators=200, max_depth=4, learning_rate=0.1,
@@ -120,7 +110,7 @@ def main():
         print("\n[XGBoost не установлен — пропускаю, используем только логрегрессию]")
         best_proba_for_roc = {"Logistic Regression": y_proba_lr}
 
-    # --- ROC-кривая (для презентации) ---
+    # --- ROC-кривая ---
     fig, ax = plt.subplots(figsize=(5, 5))
     for name, proba in best_proba_for_roc.items():
         fpr, tpr, _ = roc_curve(y_test, proba)
@@ -135,7 +125,7 @@ def main():
     plt.savefig("roc_curve.png", dpi=150)
     plt.close()
 
-    # --- Итоговая таблица метрик (для доклада) ---
+    # --- Итоговая таблица метрик ---
     results_df = pd.DataFrame(results)
     results_df.to_csv("model_metrics.csv", index=False)
     print("\n=== Итоговая таблица метрик сохранена в model_metrics.csv ===")
